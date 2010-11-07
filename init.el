@@ -1,180 +1,103 @@
 ;;; init.el --- emacs configuration file
 ;; (C) Copyright 2009, 2010 Ji Han (jihan917<at>yahoo<dot>com)
-;; free to distribute under the GPL license
+;; Last Updated: Sun, 07 Nov 2010 23:01:02
 
-
-;; encoding
-(set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8)
+;; custom-set-variables and custom-set-faces
+;; {{{
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(auto-save-default nil)
+ '(backup-by-copying t)
+ '(backup-directory-alist (quote (("." . "~/.emacs.d/backups/"))))
+ '(before-save-hook (quote (time-stamp)))
+ '(c-hungry-delete t)
+ '(column-number-mode t)
+ '(comint-process-echoes t)
+ '(current-language-environment "UTF-8")
+ '(delete-old-versions t)
+ '(dired-copy-preserve-time t)
+ '(dired-recursive-copy (quote always))
+ '(dired-recursive-deletes (quote top))
+ '(display-time-mode 1)
+ '(fill-column 78)
+ '(global-font-lock-mode t)
+ '(global-hl-line-mode t)
+ '(global-linum-mode t)
+ '(hippie-expand-try-functions-list (quote (senator-try-expand-semantic try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-expand-line try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-lisp-symbol-partially try-complete-lisp-symbol)))
+ '(ido-enable-flex-matching t)
+ '(ido-mode (quote both) nil (ido))
+ '(indent-tabs-mode nil)
+ '(inhibit-startup-screen t)
+ '(line-number-mode t)
+ '(major-mode (quote text-mode))
+ '(make-backup-files t)
+ '(next-line-add-newlines nil)
+ '(recentf-auto-cleanup (quote never))
+ '(recentf-mode 1)
+ '(require-final-newline t)
+ '(show-paren-mode t)
+ '(tab-always-indent (quote complete))
+ '(tab-stop-list nil)
+ '(tab-width 4)
+ '(text-mode-hook (quote (turn-on-flyspell turn-on-auto-fill text-mode-hook-identify time-stamp-customization-hook)))
+ '(transient-mark-mode t)
+ '(version-control t)
+ '(visible-bell t))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )
+;; }}}
 
 ;; package load path
 ;; {{{
 (funcall
  '(lambda ()
     (let ((old-dir default-directory))
-      (cd "~/.emacs.d/site-lisp")
+      (cd "~/.emacs.d/lisp")
       (add-to-list 'load-path default-directory)
       (normal-top-level-add-subdirs-to-load-path)
       (cd old-dir))))
 ;; }}}
 
-;; look-and-feel under windowing system
+;; behavior under windowing system
 ;; {{{
 (if window-system
-  (progn
-    ;; no tool bar
-    (tool-bar-mode nil)
-
-    ;; scroll bar
-    (scroll-bar-mode 'right)
-    (setq scroll-conservatively 300)
-    (setq scroll-preserve-screen-position 1)
-
-    ;; enable clipboard
-    (setq x-select-enable-clipboard t)
-
-    ;; font
-    (set-frame-font "Monaco")
-
-    ;; color theme
-    (require 'color-theme)
-    (setq color-theme-load-all-themes nil)
-    (eval-after-load "color-theme"
-     '(progn
-        (color-theme-initialize)
-        (color-theme-ruby-blue)))
-
-    ;; dynamic cursor
-    (add-hook 'post-command-hook
-     '(lambda ()
-        (cond (buffer-read-only (setq cursor-type 'hbar))
-              (overwrite-mode (setq cursor-type 'box))
-              (t (setq cursor-type 'bar)))))))
+    (progn
+      (tool-bar-mode nil)
+      (scroll-bar-mode 'right)
+      (setq scroll-conservatively 300
+            scroll-preserve-screen-position 1)
+      (setq x-select-enable-clipboard t)
+      (set-frame-font "Monaco")
+      (require 'color-theme)
+      (setq color-theme-load-all-themes nil)
+      (eval-after-load "color-theme"
+        '(progn
+           (color-theme-initialize)
+           (color-theme-ruby-blue)))
+      (add-hook 'post-command-hook
+       '(lambda ()
+          (cond (buffer-read-only (setq cursor-type 'hbar))
+                (overwrite-mode (setq cursor-type 'box))
+                (t (setq cursor-type 'bar)))))))
 ;; }}}
-
-;; do not echo shell command
-;; {{{
-(add-hook 'comint-mode-hook
- '(lambda ()
-    (setq comint-process-echoes t)))
-;; }}}
-
-;; do not display startup mesage
-(setq inhibit-startup-message t)
-
-;; visible bell instead of ring bell on error
-(setq visible-bell t)
-
-;; highlight selection
-(transient-mark-mode t)
 
 ;; answer yes-no question simply with y/n
 (fset 'yes-or-no-p 'y-or-n-p)
 
-;; don't append new lines when attempting to navigate beyond the last line
-(setq next-line-add-newlines nil)
-
-;; enforce that files shall end with newline
-(setq require-final-newline t)
-
-;; backup files
+;; customize time-stamp
 ;; {{{
-(setq make-backup-files t)
-(setq backup-by-copying t)
-(setq version-control t)
-(setq delete-old-versions t)
-(add-to-list 'backup-directory-alist (cons "." "~/.emacs.d/backups/"))
-;; }}}
-
-;; recent files
-;; {{{
-(require 'recentf)
-(setq recentf-auto-cleanup 'never)
-(recentf-mode 1)
-;; }}}
-
-;; vanilla Emacs time stamp ("Time-stamp: <>" in the first eight lines.)
-(add-hook 'before-save-hook 'time-stamp)
-
-;; however, I prefer my own time stamps:
-;; {{{
-(defun today ()
-  "insert current date as string, formatted like Sunday, October 10, 2010."
-  (interactive "p")
-  (insert (format-time-string "%A, %B %e, %Y")))
-
-(defun now ()
-  "insert current time as string, formatted like 10:10 AM."
-  (interactive "p")
-  (insert (format-time-string "%_I:%M %p")))
-;; }}}
-
-;; header2
-;; {{{
-(require 'header2)
-(add-hook 'write-file-hooks 'auto-update-file-header)
-(add-hook 'emacs-lisp-mode-hook 'auto-make-header)
-(add-hook 'c-mode-common-hook 'auto-make-header)
-;; }}}
-
-;; use text-mode as default
-(setq-default major-mode 'text-mode)
-
-;; turn on auto-fill
-;; {{{
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
-(setq-default fill-column 76)
-;; }}}
-
-;; tab expansion
-;; {{{
-(setq-default tab-width 4)
-(setq-default indent-tabs-mode nil)
-(setq tab-stop-list nil)
-;; }}}
-
-;; display current date, time and cursor position
-;; {{{
-(setq line-number-mode t)
-(setq column-number-mode t)
-
-(display-time-mode 1)
-(setq display-time-24hr-format t)
-(setq display-time-day-and-date t)
-;; }}}
-
-;; display line numbers
-(global-linum-mode 1)
-
-;; syntax highlighting
-(global-font-lock-mode t)
-
-;; htmlize --- converting highlighted text to html
-;; {{{
-(require 'htmlize)
-(setq htmlize-output-type "inline-css")
-;; }}}
-
-;; autopair
-;; {{{
-(require 'autopair)
-(autopair-global-mode)
-;; }}}
-
-;; show matching parentheses
-(show-paren-mode t)
-
-;; jump between matching parentheses
-;; {{{
-(defun goto-matching-paren (arg)
-  "jump to the matching parenthesis."
-  (interactive "p")
-  (cond
-    ((looking-at "(")(progn (forward-sexp 1)(backward-char 1)))
-    ((looking-at ")")(progn (forward-char 1)(backward-sexp 1)))
-    (t nil)))
-
-(global-set-key (kbd "C-]") 'goto-matching-paren)
+(defun time-stamp-customization-hook ()
+  (setq time-stamp-end "$"
+        time-stamp-format "%3a, %02d %3b %:y %02H:%02M:%02S"
+        time-stamp-line-limit 3000
+        time-stamp-start "Last[- ]\\\(Updated\\\|updated\\\|Modified\\\|modified\\\):[ \\\t]+"))
 ;; }}}
 
 ;; org-mode
@@ -186,30 +109,21 @@
 (setq org-log-done t)
 ;; }}}
 
-;; AucTex
-;; {{{
-(load "auctex.el" nil t t)
-(load "preview-latex.el" nil t t)
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
-;; }}}
-
-;; C/C++ indentation
+;; C indentation style
 ;; {{{
 (add-hook 'c-mode-hook
  '(lambda()
     (c-set-style "k&r")))
+;; }}}
 
+;; C++ indentation style
+;; {{{
 (add-hook 'c++-mode-hook
  '(lambda()
     (c-set-style "stroustrup")))
 ;; }}}
 
-;; hungry delete
-(setq c-hungry-delete-key t)
-
-;; compile single file if there's no makefile
+;; compile single C++ file with g++ if there's no makefile
 ;; {{{
 (add-hook 'c++-mode-hook
  '(lambda ()
@@ -219,19 +133,31 @@
           (concat "g++ -g -o " (file-name-sans-extension file) " " file))))))
 ;; }}}
 
+;;; installed packages
+
+;; AucTex
+;; {{{
+(load "auctex.el" nil t t)
+(load "preview-latex.el" nil t t)
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+;; }}}
+
+;; autopair
+;; {{{
+(require 'autopair)
+(autopair-global-mode)
+;; }}}
+
 ;; CMake
 ;; {{{
 (require 'cmake-mode)
 (setq auto-mode-alist
   (append 
-    '(("CMakeLists\\.txt\\'" . cmake-mode) ("\\.cmake\\'" . cmake-mode))
-    auto-mode-alist))
-;; }}}
-
-;; msf-abbrev
-;; {{{
-(require 'msf-abbrev)
-(global-msf-abbrev-mode t)
+   '(("CMakeLists\\.txt\\'" . cmake-mode)
+     ("\\.cmake\\'" . cmake-mode))
+   auto-mode-alist))
 ;; }}}
 
 ;; CEDET
@@ -257,24 +183,75 @@
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
 ;; }}}
 
-;; Tuareg
+;; header2
 ;; {{{
-(load "append-tuareg")
-(load "custom-tuareg")
+(require 'header2)
+(add-hook 'write-file-hooks 'auto-update-file-header)
+;;(add-hook 'emacs-lisp-mode-hook 'auto-make-header)
+(add-hook 'c-mode-common-hook 'auto-make-header)
+(setq header-date-format "%a, %d %b %Y %H:%M:%S")
+;; }}}
+
+;; htmlize
+;; {{{
+(require 'htmlize)
+(setq htmlize-output-type "inline-css")
+;; }}}
+
+;; msf-abbrev
+;; {{{
+(require 'msf-abbrev)
+(global-msf-abbrev-mode t)
+;; }}}
+
+;; python-mode
+;; {{{
+(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
+(setq interpreter-mode-alist (cons '("python" . python-mode)
+                                   interpreter-mode-alist))
+(autoload 'python-mode "python-mode" "Python editing mode." t)
+;; }}}
+
+;; session
+;; {{{
+(require 'session)
+(add-hook 'after-init-hook 'session-initialize)
 ;; }}}
 
 ;; SLIME
 ;; {{{
 ;; (set-language-environment "utf-8")
 (setq inferior-lisp-program
-  (cond ((string= window-system "w32") "/opt/ccl/wx86cl -K utf-8")
-        (t "/opt/ccl/lx86cl64 -K utf-8")))
+  (cond
+    ((string= window-system "w32") "/opt/ccl/wx86cl -K utf-8")
+    (t "/opt/ccl/lx86cl64 -K utf-8")))
 (require 'slime)
 (setq slime-net-coding-system 'utf-8-unix)
 (slime-setup '(slime-fancy))
 ;; }}}
 
-;; move the line(s) spanned by the active region up/down
+;; Tuareg
+;; {{{
+(load "append-tuareg")
+(load "custom-tuareg")
+;; }}}
+
+;;; home-brew stuff
+
+;; jump between matching parentheses
+;; {{{
+(defun goto-matching-paren (arg)
+  "jump to the matching parenthesis."
+  (interactive "p")
+  (cond
+    ((looking-at "(")(progn (forward-sexp 1)(backward-char 1)))
+    ((looking-at ")")(progn (forward-char 1)(backward-sexp 1)))
+    (t nil)))
+
+(global-set-key (kbd "C-]") 'goto-matching-paren)
+;; }}}
+
+;; move the line(s) spanned by the active region up/down (line transposing)
 (load "~/.emacs.d/move-lines")
 
 ;; user-defined shortcut keys
@@ -286,13 +263,12 @@
 ;; keep byte-compiled dotemacs up to date
 ;; {{{
 (add-hook 'emacs-lisp-mode-hook
-  '(lambda ()
+ '(lambda ()
     (when (equal buffer-file-name user-init-file)
-      (add-hook 'after-save-hook
-        '(lambda ()
-          (let ((dotemacs (file-name-sans-extension user-init-file)))
-            (byte-compile-file user-init-file)))))))
+      (add-hook (make-variable-buffer-local 'after-save-hook)
+       '(lambda ()
+          (byte-compile-file user-init-file))))))
 ;; }}}
 
-;; last updated: Thursday, November  4, 2010
 ;;; init.el ends here
+
