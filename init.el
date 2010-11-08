@@ -1,6 +1,6 @@
 ;;; init.el --- emacs configuration file
 ;; (C) Copyright 2009, 2010 Ji Han (jihan917<at>yahoo<dot>com)
-;; Last Updated: Sun, 07 Nov 2010 23:01:02
+;; Last Updated: Mon, 08 Nov 2010 21:37:56
 
 ;; custom-set-variables and custom-set-faces
 ;; {{{
@@ -165,11 +165,10 @@
 ;;(load "~/.emacs.d/user-cedet-conf")
 (require 'cedet)
 (semantic-mode 1)
-(require 'eassist)
+(require 'sourcepair)
 (add-hook 'c-mode-common-hook
  '(lambda ()
-    (define-key c-mode-base-map (kbd "M-o") 'eassist-switch-h-cpp)
-    (define-key c-mode-base-map (kbd "M-m") 'eassist-list-methods)))
+    (define-key c-mode-base-map (kbd "M-o") 'sourcepair-load)))
 (autoload 'company-mode "company" nil t)
 ;; }}}
 
