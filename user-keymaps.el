@@ -16,6 +16,9 @@
 (global-set-key (kbd "C-S-<tab>") 'previous-buffer)
 (global-set-key (kbd "C-2") 'set-mark-command)
 
+(global-set-key (kbd "M-<up>") 'move-lines-up)
+(global-set-key (kbd "M-<down>") 'move-lines-down)
+
 
 (defun cc-set-shortcut-keys ()
   (local-set-key (kbd "C-S-B") 'compile)
